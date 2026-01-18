@@ -9,8 +9,6 @@ in_process: dict[int, dict] = {}
 @router.callback_query(F.data == "btn_login")
 async def login_btn(callback: types.CallbackQuery):
     """Callback handler for btn_login"""
-    if callback.message.chat.type != "private":
-        return  # Ignore the command in groups or channels
     user_id = callback.from_user.id
     if await User.filter(telegram_id=user_id).exists():
         await dashboard(user_id, callback.message)

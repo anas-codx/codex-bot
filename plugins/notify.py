@@ -9,8 +9,6 @@ in_bcast: dict[int, dict] = {}
 @router.message(Command("bcast"))
 async def bcast(message: types.Message):
     """Initiates the email broadcast workflow for authorized administrators."""
-    if message.chat.type != "private":
-        return
     user_id = message.from_user.id
     if user_id not in Config().authorId:
         await message.answer(

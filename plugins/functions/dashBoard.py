@@ -16,6 +16,9 @@ btn = InlineKeyboardMarkup(
                 InlineKeyboardButton(text='Weekly Tests', callback_data='btn_weekly_tests'),
             ],
             [
+                InlineKeyboardButton(text='Help', callback_data='btn_help'),
+            ],
+            [
                 InlineKeyboardButton(text='Logout', callback_data='btn_logout'),
             ]
         ]

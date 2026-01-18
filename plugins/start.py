@@ -30,8 +30,6 @@ keyboard = InlineKeyboardMarkup(
 @router.message(Command("start"))
 async def start_handler(message: types.Message):
     """Handles the /start command when a user initiates the bot"""
-    if message.chat.type != "private":
-        return  # Ignore the command in groups or channels
     user_id = message.from_user.id
     logger.info(f"User - {user_id} Started the Bot.")
     student = await User.filter(telegram_id=user_id).exists()
