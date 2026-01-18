@@ -6,9 +6,12 @@ setup(
     description='AI based telegram bot',
     author='Coding Destro',
     author_email='codingdestro@gmail.com',
-    packages=['internal', 'models', 'app'],
+    packages=['internal', 'models', 'app', 'plugins'],
     install_requires=[
         'tortoise-orm',
         'aiogram',
+        'requests',
+        'python-dotenv',
+        'beautifulsoup4',
     ],
 )
