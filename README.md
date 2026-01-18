@@ -2,14 +2,6 @@
 
 <h3 align="center">Streamlining SAITM Codex Club activities through Telegram.</h3>
 
-## About CodeX Club Bot:
-The Codex Club Management Bot is a comprehensive Telegram bot built for St. Andrews college Codex Club. It streamlines club activities by managing weekly tests, sharing learning resources, providing updates on jobs and startup opportunities, and coordinating projects and events. With this bot, members can stay informed, collaborate efficiently, and access all club-related information in one convenient platform.
-
-## Features:
-- Login – Users can log in to access the club bot features.
-- Logout – Users can log out when they are done using the bot.
-- Weekly Test – Users can attempt weekly tests assigned by the club.
-
 ## Installation:
  - Clone the repository:  
 ```bash
