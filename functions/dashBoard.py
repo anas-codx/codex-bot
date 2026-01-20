@@ -2,6 +2,7 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from models import User
 from aiogram import html
 
+# Create an inline keyboard for the dashboard based on bot features
 btn = InlineKeyboardMarkup(
         inline_keyboard=[
             [
@@ -25,13 +26,19 @@ btn = InlineKeyboardMarkup(
     )
 
 async def dashboard(user_id, message):
-    """Fetching User's Dashboard"""
+    """
+    Fetch and display the user's dashboard.
+    Retrieves user details from the database and sends
+    a formatted dashboard message with action buttons.
+    """
+    # Fetch user data based on Telegram user ID
     student = await User.get_or_none(telegram_id=user_id)
     student_name = student.student_name
     roll_number = student.roll_number
     branch = student.branch
     session = student.session
     created_at = student.created_at
+    # Prepare the dashboard message with formatted text
     text = (
         f"Hey, {student_name}\n\n"
         "Welcome to your dashboard!\n\n"
@@ -42,6 +49,7 @@ async def dashboard(user_id, message):
         f"Profile Created On: {created_at}\n\n"
         "Manage your activities and stay connected with the club effortlessly."
     )
+    # Send the dashboard message with inline keyboard buttons
     await message.answer(
         text=text,
         reply_markup=btn,

@@ -6,7 +6,7 @@ from models import User
 from functions import dashboard
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
-# header file
+# Define headers to mimic a real browser request
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
                   "AppleWebKit/537.36 (KHTML, like Gecko) "
@@ -31,11 +31,15 @@ loginBtn = InlineKeyboardMarkup(
 )
 
 async def login(username: str, password: str, message):
-    """creating a new user in database"""
+    """
+    Handle user login by authenticating against the website,
+    fetching student profile details, and storing them in the database.
+    """
     user_id = message.from_user.id
     logger.info(f"User - {user_id} Started Login...")
     session = requests.Session()
     try:
+        # Get login page and CSRF token
         response = session.get(f"{Config().baseUrl}/account/login", headers=headers, timeout=10)
         response.raise_for_status()
         soup = BeautifulSoup(response.text, "html.parser")
@@ -55,8 +59,10 @@ async def login(username: str, password: str, message):
             "__RequestVerificationToken": token,
             "ReturnUrl": "", # can be None
         }
+        # Submit login form
         loginresponse = session.post(f"{Config().baseUrl}/account/login", data=payload, headers=headers)
         loginresponse.raise_for_status()
+        # Check login success
         if "logout" in loginresponse.text.lower() or "dashboard" in loginresponse.text.lower():
             pfresponse = session.get(f"{Config().baseUrl}/StudentProfile/StudentProfileUpdateRequest", headers=headers)
             pfresponse.raise_for_status()
@@ -68,6 +74,7 @@ async def login(username: str, password: str, message):
                     key = spans[0].get_text(strip=True).replace(" :", "")
                     value = spans[1].get_text(strip=True)
                     details[key] = value
+                    # Save user to database
             await User.create(
                 telegram_id=user_id,
                 student_name=details.get('Student Name', 'N/A'),

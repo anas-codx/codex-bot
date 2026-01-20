@@ -6,7 +6,8 @@ from internal import Config
 from internal import logger
 
 async def sendmail(subject: str, body: str, message):
-    """Sends a broadcast email to all students whose email addresses are stored in the database."""
+    """Broadcast an email to all students with valid email addresses."""
+    # Get all student emails from the database
     emails = await User.filter(student_mail__isnull=False).values_list(
         "student_mail", flat=True
     )
@@ -18,7 +19,7 @@ async def sendmail(subject: str, body: str, message):
             text=f"Total emails found: {total_emails}. Starting broadcast...",
             parse_mode="html",
         )
-        server = smtplib.SMTP(Config().smtpServer, Config().smtpPort)
+        server = smtplib.SMTP(Config().smtpServer, Config().smtpPort) # config the smtp server for sending emails
         server.starttls()
         server.login(Config().emailId, Config().emailPass)
         for email in emails:
@@ -29,7 +30,7 @@ async def sendmail(subject: str, body: str, message):
             msg.attach(MIMEText(body, "plain"))
             server.sendmail(Config().emailId, email, msg.as_string())
             sent_count += 1
-        server.quit()
+        server.quit() # after sending all the emails server will quit
         logger.info(f"Email sent successfully!\n\nTotal emails: {total_emails}\nSuccessfully sent: {sent_count}")
         await message.answer(
             text=f"Email sent successfully!\n\nTotal emails: {total_emails}\nSuccessfully sent: {sent_count}",

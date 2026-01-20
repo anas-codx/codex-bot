@@ -11,8 +11,10 @@ from plugins import (
 
 )
 
+# Load environment variables from the .env file into the system environment
 load_dotenv()
 
+# Create an instance of Dispatcher to handle and route incoming updates/events
 dp = Dispatcher()
 
 # Registers all the function to handle incoming Telegram messages that use the command.
@@ -21,11 +23,10 @@ dp.include_router(notify_router)
 dp.include_router(login_router)
 dp.include_router(logout_router)
 
-
 async def main() -> None:
     await db.init_db()
     config = Config()
-    if not config.botApi:
+    if not config.botApi: # if the botApi is missing it will raise an error
         logger.error("Missing botApi environment variable")
         return
     bot = Bot(config.botApi, default=DefaultBotProperties(parse_mode=ParseMode.HTML))

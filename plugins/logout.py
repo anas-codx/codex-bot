@@ -7,7 +7,10 @@ router = Router()
 
 @router.callback_query(F.data == "btn_logout")
 async def logout_btn(callback: types.CallbackQuery):
-    """Callback handler for btn_logout"""
+    """
+    Handles the logout button click: deletes the user from database if exists,
+    confirms logout, and shows the login button; alerts if user is not logged in.
+    """
     user_id = callback.from_user.id
     user = await User.get_or_none(telegram_id=user_id)
     if user:

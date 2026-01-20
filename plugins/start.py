@@ -29,7 +29,11 @@ keyboard = InlineKeyboardMarkup(
 
 @router.message(Command("start"))
 async def start_handler(message: types.Message):
-    """Handles the /start command when a user initiates the bot"""
+    """
+    Handles the /start command: logs the user start,
+    shows the dashboard if registered, otherwise sends a welcome message
+    with instructions and a help button.
+    """
     user_id = message.from_user.id
     logger.info(f"User - {user_id} Started the Bot.")
     student = await User.filter(telegram_id=user_id).exists()
