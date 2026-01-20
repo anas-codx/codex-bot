@@ -3,7 +3,7 @@ from aiogram import html
 from bs4 import BeautifulSoup
 from internal import logger, Config
 from models import User
-from plugins.functions.dashBoard import dashboard
+from functions import dashboard
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
 # header file

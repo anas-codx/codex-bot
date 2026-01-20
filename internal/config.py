@@ -3,7 +3,7 @@ import os
 class Config:
     def __init__(self):
         """Initialize configuration with default settings."""
-        self.botApi = os.getenv("botApi", "")
+        self.botApi = os.getenv("botApi", "8271648321:AAHSMhFxs1xZB7eHFBuYEbDlpnyoIesor1A")
         self.baseUrl = os.getenv("baseUrl", "https://erp.saitm.ac.in")
         self.authorId = list(map(int, os.getenv("authorId", "8132481394").split()))
         self.emailId = os.getenv("emailId", "codexsaitm@gmail.com")

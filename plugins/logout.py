@@ -1,6 +1,6 @@
 from models import User
 from aiogram import Router, F, types, html
-from plugins.functions.onLogin import loginBtn
+from functions.onLogin import loginBtn
 from internal import logger
 
 router = Router()

@@ -3,7 +3,7 @@ from aiogram.filters import Command
 from internal import logger
 from models import User
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
-from plugins.functions.dashBoard import dashboard
+from functions import dashboard
 
 router = Router()
 
