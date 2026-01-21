@@ -1,5 +1,6 @@
 #!env python3
 import asyncio
+import os
 from dotenv import load_dotenv
 from internal import db, logger
 from internal.config import Config
@@ -31,6 +32,7 @@ async def main() -> None:
     config = Config()
     if not config.botApi: # if the botApi is missing it will raise an error
         logger.error("Missing botApi environment variable")
+        os._exit(1)
         return
     bot = Bot(config.botApi, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
     await dp.start_polling(bot)
