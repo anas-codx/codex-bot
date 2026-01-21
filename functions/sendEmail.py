@@ -38,4 +38,3 @@ async def sendmail(subject: str, body: str, message):
         )
     except Exception as e:
         logger.error(e)
-        await message.answer(str(e))

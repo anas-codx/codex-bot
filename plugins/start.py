@@ -28,7 +28,7 @@ keyboard = InlineKeyboardMarkup(
 )
 
 @router.message(Command("start"))
-async def start_handler(message: types.Message):
+async def handle_start(message: types.Message):
     """
     Handles the /start command: logs the user start,
     shows the dashboard if registered, otherwise sends a welcome message

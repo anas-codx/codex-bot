@@ -27,13 +27,20 @@ dp.include_router(project_router)
 dp.include_router(back_router)
 
 async def main() -> None:
-    await db.init_db()
-    config = Config()
-    if not config.botApi: # if the botApi is missing it will raise an error
-        logger.error("Missing botApi environment variable")
-        return
-    bot = Bot(config.botApi, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
-    await dp.start_polling(bot)
+    try:
+        logger.info("The bot is initializing...")
+        await db.init_db()
+        logger.info("The database has been initialized successfully...")
+        config = Config()
+        if not config.botApi: # if the botApi is missing it will raise an error
+            logger.error("Missing botApi environment variable")
+            return
+        logger.info("Telegram bot client creation in progress...")
+        bot = Bot(config.botApi, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
+        logger.info("The bot has started successfully...")
+        await dp.start_polling(bot)
+    except Exception as e:
+        logger.error(e)
 
 if __name__ == "__main__":
     try:

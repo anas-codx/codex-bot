@@ -5,7 +5,7 @@ from functions.dashBoard import btn
 router = Router()
 
 @router.callback_query(F.data == "back")
-async def btn_back(callback: types.CallbackQuery):
+async def handle_btn_back(callback: types.CallbackQuery):
     """
     Handles the 'back' button callback by identifying the user via Telegram ID.
     Checks whether the user exists in the database as a student and, if found,

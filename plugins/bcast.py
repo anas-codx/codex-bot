@@ -8,7 +8,7 @@ from functions import sendmail
 router = Router()
 
 @router.message(Command("bcast"))
-async def bcast(message: types.Message, state: FSMContext):
+async def handle_bcast(message: types.Message, state: FSMContext):
     """
     Starts the broadcast process for admins: checks authorization,
     clears previous state, sets state to subject, and asks for email subject.

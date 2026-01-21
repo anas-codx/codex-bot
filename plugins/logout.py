@@ -6,7 +6,7 @@ from internal import logger
 router = Router()
 
 @router.callback_query(F.data == "btn_logout")
-async def logout_btn(callback: types.CallbackQuery):
+async def handle_logout_btn(callback: types.CallbackQuery):
     """
     Handles the logout button click: deletes the user from database if exists,
     confirms logout, and shows the login button; alerts if user is not logged in.
@@ -28,6 +28,6 @@ async def logout_btn(callback: types.CallbackQuery):
         await msg.delete()
         return
     await callback.answer(
-        text=f"You must Login before attempting to log out.",
+        text=f"You are required to log in before attempting to use this command. Do not proceed without proper authentication.",
         show_alert=True
     )

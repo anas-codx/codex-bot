@@ -8,7 +8,7 @@ from functions import login
 router = Router()
 
 @router.callback_query(F.data == "btn_login")
-async def login_btn(callback: types.CallbackQuery, state: FSMContext):
+async def handle_login_btn(callback: types.CallbackQuery, state: FSMContext):
     """
     Handles the login button click: checks if user exists,
     shows dashboard if registered, otherwise starts username input for login.
