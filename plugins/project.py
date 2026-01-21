@@ -340,7 +340,7 @@ async def reject_project(callback: types.CallbackQuery):
         buttoni = InlineKeyboardMarkup(
             inline_keyboard=[
                 [
-                    InlineKeyboardButton(text="Contact Submitter", url=f"https://t.me/{projectowner}")
+                    InlineKeyboardButton(text="Contact Submitter", url=f"tg://user?id={projectowner}")
                 ]
             ]
         )
