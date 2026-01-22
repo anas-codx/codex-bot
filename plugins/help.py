@@ -58,7 +58,7 @@ async def handle_btn_help(callback: types.CallbackQuery):
         )
 
 @router.callback_query(F.data == "btn_back")
-async def handle_btn_help(callback: types.CallbackQuery):
+async def handle_btn_back(callback: types.CallbackQuery):
     """
     if user click on back button
     this handler handle the back button callback
@@ -87,7 +87,7 @@ async def handle_btn_help(callback: types.CallbackQuery):
         )
 
 @router.callback_query(F.data == "help_project_ideas")
-async def handle_btn_help(callback: types.CallbackQuery):
+async def handle_btn_help_project(callback: types.CallbackQuery):
     """
     this handler handle the project idea help button callback
     """
