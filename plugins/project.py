@@ -2,8 +2,10 @@ from aiogram import types, Router, F, html, Bot
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from models import  ProjectIdea, User
 from aiogram.fsm.context import FSMContext
-from states import ProjectIdeaForm
+from states import ProjectIdeaForm, GetProjectForm
 from internal import Config
+import random
+from internal import logger
 
 projectButton = InlineKeyboardMarkup(
     inline_keyboard=[
@@ -204,6 +206,7 @@ async def handle_save_project(message: types.Message, state: FSMContext, bot: Bo
         reference_links=references,
         submitted_by=student
     )
+    logger.info("A new project has been successfully created in the database. Try not to break it.")
     await message.answer(
         text="Your project idea has been successfully submitted.\n\nIt will become visible once it has been reviewed and approved by admins."
     )
@@ -228,14 +231,14 @@ async def handle_save_project(message: types.Message, state: FSMContext, bot: Bo
             f"{html.bold('New Project Idea')}\n\n"
             f"{html.bold('Title:')} {project.title}\n\n"
             f"{html.bold('Description:')} {project.description}\n\n"
-            f"Project Idea Submitted By {student_name}\n"
+            f"Submitted By {student_name}\n"
         ),
         parse_mode="html",
         reply_markup=buttons
     )
 
 @router.callback_query(F.data.startswith("approve_"))
-async def approve_project(callback: types.CallbackQuery, bot: Bot):
+async def handle_approve_project(callback: types.CallbackQuery, bot: Bot):
     """
     Approves a submitted project idea.
     Updates project status, notifies admins, and broadcasts the approved project to all users.
@@ -262,7 +265,7 @@ async def approve_project(callback: types.CallbackQuery, bot: Bot):
         text=f"{html.bold('Project Idea Approved Successfully')}\n\n"
         f"{html.bold('Title:')} {project.title}\n\n"
         f"{html.bold('Description:')} {project.description}\n\n"
-        f"Project Idea Approved By {callback.from_user.first_name}\n",
+        f"Approved By {callback.from_user.first_name}\n",
         parse_mode="html"
     )
     await callback.answer("The project Idea has been approved. Consider yourself fortunate.")
@@ -282,13 +285,13 @@ async def approve_project(callback: types.CallbackQuery, bot: Bot):
             text=f"{html.bold('New Project Idea')}\n\n"
                  f"{html.bold('Title:')} {project.title}\n\n"
                  f"{html.bold('Description:')} {project.description}\n\n"
-                 f"Project Idea Submitted By {student_name}\n",
+                 f"Submitted By {student_name}\n",
             reply_markup=ibutton,
             parse_mode="html",
         )
 
 @router.callback_query(F.data.startswith("reject_"))
-async def reject_project(callback: types.CallbackQuery):
+async def handle_reject_project(callback: types.CallbackQuery):
     """
     Rejects a submitted project idea and disables its visibility.
     """
@@ -314,13 +317,13 @@ async def reject_project(callback: types.CallbackQuery):
         text=f"{html.bold('Project Idea Rejected Successfully')}\n\n"
         f"{html.bold('Title:')} {project.title}\n\n"
         f"{html.bold('Description:')} {project.description}\n\n"
-        f"Project Idea Rejected By {callback.from_user.first_name}\n",
+        f"Rejected By {callback.from_user.first_name}\n",
         parse_mode="html"
     )
     await callback.answer("The project idea has been rejected. Consider yourself fortunate.")
 
 @router.callback_query(F.data.startswith("showdetails_"))
-async def reject_project(callback: types.CallbackQuery):
+async def handle_showdetails_project(callback: types.CallbackQuery):
     """
     Displays full project details and provides a contact button for the submitter.
     """
@@ -355,7 +358,7 @@ async def reject_project(callback: types.CallbackQuery):
             f"{html.bold('Learning outcomes:')} {project.learning_outcomes}\n\n"
             f"{html.bold('Prerequisites:')} {project.prerequisites}\n\n"
             f"{html.bold('Reference links:')} {project.reference_links}\n\n"
-            f"Project Idea Submitted By {project.submitted_by.student_name}\n",
+            f"Submitted By {project.submitted_by.student_name}\n",
             reply_markup=buttoni,
             parse_mode="html",
         )
@@ -366,3 +369,79 @@ async def reject_project(callback: types.CallbackQuery):
             text=f"You are required to log in before attempting to use this command. Do not proceed without proper authentication.",
             show_alert=True
         )
+        return
+
+@router.callback_query(F.data.startswith("get_project"))
+async def handle_get_project(callback: types.CallbackQuery, state: FSMContext):
+    """
+    handle callback when user click on get project idea button
+    and set the state on get query
+    """
+    user_id = callback.from_user.id
+    student = await User.filter(telegram_id=user_id).exists()
+    if student:
+        await callback.message.answer(
+            text="Please enter keywords describing the type of project you are looking for "
+                 "separated by commas (e.g., Python, Flask, Advanced, Backend):",
+            parse_mode="html",
+        )
+        await state.set_state(GetProjectForm.query)
+        return
+    else:
+        await callback.answer(
+            text=f"You are required to log in before attempting to use this command. Do not proceed without proper authentication.",
+            show_alert=True
+        )
+        return
+
+@router.message(GetProjectForm.query)
+async def handle_get_project_query(message: types.Message, state: FSMContext):
+    """
+    get user interest as keyword and match with database
+    if any project matched it will send to the user
+    """
+    user_keywords = [kw.strip().lower() for kw in message.text.split(",")]
+    projects = await ProjectIdea.filter(is_approved=True, is_active=True).prefetch_related("submitted_by")
+    matched_projects = []
+    for project in projects:
+        searchable_text = " ".join([
+            project.title or "",
+            project.description or "",
+            project.category or "",
+            project.difficulty_level or "",
+            " ".join(project.technologies or [])
+        ]).lower()
+        match_count = sum(1 for kw in user_keywords if kw in searchable_text)
+        total_keywords = len(user_keywords)
+        if total_keywords > 0 and (match_count / total_keywords) >= 0.5:
+            matched_projects.append(project)
+    if not matched_projects:
+        await message.answer("No projects match your interests. Adjust your criteria instead of expecting results.")
+        await state.clear()
+        return
+    projects_to_send = (
+        random.sample(matched_projects, k=3)
+        if len(matched_projects) > 3
+        else matched_projects
+    )
+    for project in projects_to_send:
+        butto = InlineKeyboardMarkup(
+            inline_keyboard=[
+                [
+                    InlineKeyboardButton(
+                        text="Show Details",
+                        callback_data=f"showdetails_{project.id}"
+                    )
+                ]
+            ]
+        )
+        await message.answer(
+            text=(
+                f"{html.bold('Title:')} {project.title}\n\n"
+                f"{html.bold('Description:')} {project.description}\n\n"
+                f"Submitted By: {project.submitted_by.student_name}"
+            ),
+            parse_mode="html",
+            reply_markup=butto
+        )
+    await state.clear()

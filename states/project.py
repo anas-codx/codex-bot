@@ -21,3 +21,6 @@ class ProjectIdeaForm(StatesGroup):
     learning_outcomes = State()
     prerequisites = State()
     references = State()
+
+class GetProjectForm(StatesGroup):
+    query = State()
