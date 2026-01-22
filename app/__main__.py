@@ -8,7 +8,7 @@ from aiogram.enums import ParseMode
 from aiogram.client.default import DefaultBotProperties
 from plugins import (
     login_router, logout_router, start_router, notify_router,
-    project_router, back_router
+    project_router, back_router, help_router
 
 )
 
@@ -25,6 +25,7 @@ dp.include_router(login_router)
 dp.include_router(logout_router)
 dp.include_router(project_router)
 dp.include_router(back_router)
+dp.include_router(help_router)
 
 async def main() -> None:
     try:
