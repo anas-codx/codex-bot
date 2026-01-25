@@ -6,6 +6,7 @@ from states import ProjectIdeaForm, GetProjectForm
 from internal import Config
 import random
 from internal import logger
+import re
 
 projectButton = InlineKeyboardMarkup(
     inline_keyboard=[
@@ -400,20 +401,57 @@ async def handle_get_project_query(message: types.Message, state: FSMContext):
     get user interest as keyword and match with database
     if any project matched it will send to the user
     """
-    user_keywords = [kw.strip().lower() for kw in message.text.split(",")]
-    projects = await ProjectIdea.filter(is_approved=True, is_active=True).prefetch_related("submitted_by")
+    # user_keywords = [kw.strip().lower() for kw in message.text.split(",")]
+    # projects = await ProjectIdea.filter(is_approved=True, is_active=True).prefetch_related("submitted_by")
+    # matched_projects = []
+    # for project in projects:
+    #     searchable_text = " ".join([
+    #         project.title or "",
+    #         project.description or "",
+    #         project.category or "",
+    #         project.difficulty_level or "",
+    #         " ".join(project.technologies or [])
+    #     ]).lower()
+    #     # match_count = sum(1 for kw in user_keywords if kw in searchable_text)
+    #     # total_keywords = len(user_keywords)
+    #     # if total_keywords > 0 and (match_count / total_keywords) >= 0.1:
+    #     #     matched_projects.append(project)
+    #     if any(kw in searchable_text for kw in user_keywords):
+    #         matched_projects.append(project)
+    user_keywords = [
+        kw.lower() for kw in re.split(r"[,\s]+", message.text.strip()) if kw
+    ]
+    # Fetch all approved and active projects
+    projects = await ProjectIdea.filter(
+        is_approved=True,
+        is_active=True
+    ).prefetch_related("submitted_by")
     matched_projects = []
     for project in projects:
-        searchable_text = " ".join([
-            project.title or "",
-            project.description or "",
-            project.category or "",
-            project.difficulty_level or "",
-            " ".join(project.technologies or [])
-        ]).lower()
-        match_count = sum(1 for kw in user_keywords if kw in searchable_text)
-        total_keywords = len(user_keywords)
-        if total_keywords > 0 and (match_count / total_keywords) >= 0.5:
+        # Convert all fields (lists or strings) into a single searchable string
+        fields_to_combine = [
+            project.title,
+            project.description,
+            project.category,
+            project.difficulty_level,
+            project.estimated_duration,
+            project.submitted_by.student_name
+        ]
+        # JSON/list fields
+        list_fields = [
+            project.technologies,
+            project.learning_outcomes,
+            project.prerequisites,
+            project.reference_links
+        ]
+        # Flatten list fields to strings
+        list_fields_str = [" ".join(f) if f else "" for f in list_fields]
+        # Combine all text fields
+        searchable_text = " ".join(
+            [str(f) for f in fields_to_combine + list_fields_str if f]
+        ).lower()
+        # If any keyword matches, project is a match
+        if any(kw in searchable_text for kw in user_keywords):
             matched_projects.append(project)
     if not matched_projects:
         await message.answer("No projects match your interests. Adjust your criteria instead of expecting results.")
