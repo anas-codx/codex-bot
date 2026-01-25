@@ -349,7 +349,7 @@ async def handle_showdetails_project(callback: types.CallbackQuery):
             ]
         )
         await callback.message.answer(
-            text=f"{html.bold('New Project Idea')}\n\n"
+            text=f"{html.bold('Project Idea')}\n\n"
             f"{html.bold('Title:')} {project.title}\n\n"
             f"{html.bold('Description:')} {project.description}\n\n"
             f"{html.bold('Difficulty level:')} {project.difficulty_level}\n\n"
